@@ -1,0 +1,189 @@
+---
+title: "PS5 Answer"
+author: "Sienna Wang & Hengyi Xing"
+date: "2024-11-07"
+format: 
+  pdf:
+    include-in-header: 
+       text: |
+         \usepackage{fvextra}
+         \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+include-before-body:
+  text: |
+    \RecustomVerbatimEnvironment{verbatim}{Verbatim}{
+      showspaces = false,
+      showtabs = false,
+      breaksymbolleft={},
+      breaklines
+    }
+output:
+  echo: false
+  eval: false
+---
+
+**Due 11/9 at 5:00PM Central. Worth 100 points + 10 points extra credit.**
+
+## Submission Steps (10 pts)
+1. This problem set is a paired problem set.
+2. Play paper, scissors, rock to determine who goes first. Call that person *Partner 1*.
+    - Partner 1 (name and cnet ID):
+    - Partner 2 (name and cnet ID):
+3. Partner 1 will accept the `ps5` and then share the link it creates with their partner. You can only share it with one partner so you will not be able to change it after your partner has accepted. 
+4. "This submission is our work alone and complies with the 30538 integrity policy." Add your initials to indicate your agreement: \*\*\_\_\*\* \*\*\_\_\*\*
+5. "I have uploaded the names of anyone else other than my partner and I worked with on the problem set **[here](https://docs.google.com/forms/d/185usrCREQaUbvAXpWhChkjghdGgmAZXA3lPWpXLLsts/edit)**"  (1 point)
+6. Late coins used this pset: \*\*\_\_\*\* Late coins left after submission: \*\*\_\_\*\*
+7. Knit your `ps5.qmd` to an PDF file to make `ps5.pdf`, 
+    * The PDF should not be more than 25 pages. Use `head()` and re-size figures when appropriate. 
+8. (Partner 1): push  `ps5.qmd` and `ps5.pdf` to your github repo.
+9. (Partner 1): submit `ps5.pdf` via Gradescope. Add your partner on Gradescope.
+10. (Partner 1): tag your submission in Gradescope
+
+\newpage
+
+```{python}
+import pandas as pd
+import altair as alt
+import requests
+import time
+from bs4 import BeautifulSoup
+
+import warnings 
+warnings.filterwarnings('ignore')
+alt.renderers.enable("png")
+```
+
+
+## Step 1: Develop initial scraper and crawler
+
+### 1. Scraping (PARTNER 1)
+
+```{python}
+# Fetch contents from the website
+url = 'https://oig.hhs.gov/fraud/enforcement/'
+response = requests.get(url)
+soup = BeautifulSoup(response.text, 'lxml')
+li_action = soup.find_all(
+    'li', class_='usa-card card--list pep-card--minimal mobile:grid-col-12')
+
+# Parse into a dataset
+title_list = []
+date_list = []
+category_list = []
+link_list = []
+for item in li_action:
+    title = item.find('a').text
+    title_list.append(title)
+    date = item.find('span').text
+    date_list.append(date)
+    category = item.find('li').text
+    category_list.append(category)
+    link = item.find('a').attrs['href'] # Relative Path
+    link = 'https://oig.hhs.gov' + link
+    link_list.append(link)
+
+df_dict = {'Title': title_list, 'Date': date_list,
+           'Category': category_list, 'Link': link_list}
+df_tidy = pd.DataFrame(df_dict)
+print(df_tidy.head(5))
+```
+```{python}
+# Since the list cells are too long to display
+# We demonstrate a complete example here
+print(link_list[0][0:80])
+print(link_list[0][80:])
+```
+
+### 2. Crawling (PARTNER 1)
+
+```{python}
+# We have 20 actions in total
+agency_list = []
+for i in range(20):
+  url = link_list[i]
+  response = requests.get(url)
+  soup = BeautifulSoup(response.content, 'lxml')
+  agency_li = soup.find_all(
+    'ul', class_='usa-list usa-list--unstyled margin-y-2')
+  agency = agency_li[0].find_all('li')[1].text[7::]
+  agency_list.append(agency)
+agency_dict = {'Title': title_list, 'Agency': agency_list}
+df_agency = pd.DataFrame(agency_dict)
+print(df_agency.head(5))
+```
+```{python}
+# Again we demonstrate one complete sample element here
+print(agency_list[0])
+```
+
+## Step 2: Making the scraper dynamic
+
+### 1. Turning the scraper into a function 
+
+* a. Pseudo-Code (PARTNER 2)
+
+
+* b. Create Dynamic Scraper (PARTNER 2)
+
+```{python}
+
+```
+
+* c. Test Partner's Code (PARTNER 1)
+
+```{python}
+
+```
+
+## Step 3: Plot data based on scraped data
+
+### 1. Plot the number of enforcement actions over time (PARTNER 2)
+
+```{python}
+
+```
+
+### 2. Plot the number of enforcement actions categorized: (PARTNER 1)
+
+* based on "Criminal and Civil Actions" vs. "State Enforcement Agencies"
+
+```{python}
+
+```
+
+* based on five topics
+
+```{python}
+
+```
+
+## Step 4: Create maps of enforcement activity
+
+### 1. Map by State (PARTNER 1)
+
+```{python}
+
+```
+
+
+### 2. Map by District (PARTNER 2)
+
+```{python}
+
+```
+
+## Extra Credit
+
+### 1. Merge zip code shapefile with population
+```{python}
+
+```
+
+### 2. Conduct spatial join
+```{python}
+
+```
+
+### 3. Map the action ratio in each district
+```{python}
+
+```
